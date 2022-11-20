@@ -28,6 +28,9 @@ pub fn main() -> () {
             print!("\nIt's a miss, try again\n")
         }
         print_board(&public_board);
+        if is_game_over(&board, &public_board) {
+            print!("\nCongratulations, you have won!")
+        }
     }
 }
 
@@ -49,6 +52,14 @@ fn get_input(board_size: usize, row: bool) -> usize {
     }
     return row_number - 1;
 }
+
+fn is_game_over(board: &Array2<i8>, public_board: &Array2<i8>) -> bool {
+    let remaining_ships: Array2<bool> = board.mapv(|x| x == 1) & public_board.mapv(|x| x == 0);
+    let n_remaining_ships = remaining_ships.mapv(|x| u8::from(x)).sum();
+    return n_remaining_ships == 0;
+}
+
+
 fn get_valid_position(public_board: &Array2<i8>) -> (usize, usize) {
     let mut row_number: usize;
     let mut col_number: usize;
