@@ -17,11 +17,18 @@ pub fn main() -> () {
     update_public_board(&board, &mut public_board, 9, 0);
     println!("public board: \n{:?}", public_board);
     print_board(&public_board);
-    let row_number: usize = get_input(10, true);
-    println!("row: {}", row_number);
-    let col_number: usize = get_input(10, false);
-    println!("column: {}", col_number);
-    // TODO validate if coordinate is available
+    loop {
+        let x: usize;
+        let y: usize;
+        (x, y) = get_valid_position(&public_board);
+        let hit: u8 = update_public_board(&board, &mut public_board, x, y);
+        if hit == 1 {
+            print!("\nYou hit one of the computer's ships!\n")
+        } else {
+            print!("\nIt's a miss, try again\n")
+        }
+        print_board(&public_board);
+    }
 }
 
 fn get_input(board_size: usize, row: bool) -> usize {
@@ -40,7 +47,22 @@ fn get_input(board_size: usize, row: bool) -> usize {
             _ => continue,
         };
     }
-    return row_number;
+    return row_number - 1;
+}
+fn get_valid_position(public_board: &Array2<i8>) -> (usize, usize) {
+    let mut row_number: usize;
+    let mut col_number: usize;
+    let board_size: usize = public_board.shape()[0];
+    loop {
+        row_number = get_input(board_size, true);
+        col_number = get_input(board_size, false);
+        if public_board[[row_number, col_number]] == 0 {
+            break
+        } else {
+            print!("position was already guessed, pick another one...\n")
+        }
+    }
+    return (row_number, col_number);
 }
 
 fn print_board(public_board: &Array2<i8>) -> () {
@@ -63,7 +85,7 @@ fn print_board(public_board: &Array2<i8>) -> () {
         let r_numbered = vec![r_number, str_row].join("");
         rows.push(r_numbered);
     }
-    print!("{}", rows.join("\n"));
+    print!("\n{}\n", rows.join("\n"));
 }
 
 fn create_board(size: usize) -> Array2<i8> {
@@ -76,11 +98,13 @@ fn update_public_board(
     public_board: &mut Array2<i8>,
     x: usize,
     y: usize,
-) -> () {
+) -> u8 {
     if board[[x, y]] == 1 {
-        public_board[[x, y]] = 1
+        public_board[[x, y]] = 1;
+        return 1;
     } else {
-        public_board[[x, y]] = -1
+        public_board[[x, y]] = -1;
+        return 0;
     }
 }
 
